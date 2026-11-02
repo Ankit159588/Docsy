@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #fefaf3;
+  --color-pink: #f6e2e9;
+  --color-sage-light: #b8cfb3;
+  --color-sage: #84a282;
+  --color-sage-dark: #6f8e6d;
+  --color-text-main: #303b32;
+
+  --font-recia: "Recia", serif;
+  --font-sans: "Inter", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: #fefaf3;
+  color: #303b32;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+@font-face {
+  font-family: "Recia";
+  src: url("/fonts/Recia-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
