@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { CloudUpload, ShieldCheck, X, FileImage, FileText } from "lucide-react";
 
+import { saveFile, deleteFile, clearAllFiles } from "../database/fileDatabase";
+
 const ALLOWED_TYPES = [
   "image/jpeg",
   "image/png",
@@ -10,13 +12,12 @@ const ALLOWED_TYPES = [
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
-function UploadArea() {
-  const [selectedFiles, setSelectedFiles] = useState([]);
+function UploadArea({ selectedFiles, setSelectedFiles }) {
   const [errors, setErrors] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Handle file validation and selection
-  function handleFiles(files) {
+  // Validate files and save valid files to IndexedDB
+  async function handleFiles(files) {
     const validFiles = [];
     const newErrors = [];
 
@@ -30,7 +31,25 @@ function UploadArea() {
       }
     });
 
-    setSelectedFiles((prevFiles) => [...prevFiles, ...validFiles]);
+    const savedFiles = [];
+
+    // Save files one by one
+    for (const file of validFiles) {
+      try {
+        const id = await saveFile(file);
+
+        // Attach the database ID to the File object
+        file.id = id;
+
+        savedFiles.push(file);
+      } catch (error) {
+        console.error("File saving failed:", error);
+        newErrors.push(`${file.name}: Could not save file`);
+      }
+    }
+
+    // Update React state after successful database saves
+    setSelectedFiles((prevFiles) => [...prevFiles, ...savedFiles]);
 
     setErrors(newErrors);
   }
@@ -68,17 +87,35 @@ function UploadArea() {
     handleFiles(files);
   }
 
-  // Remove individual file
-  function handleRemoveFile(indexToRemove) {
-    setSelectedFiles((prevFiles) =>
-      prevFiles.filter((_, index) => index !== indexToRemove),
-    );
+  // Remove individual file from IndexedDB and React state
+  async function handleRemoveFile(indexToRemove) {
+    const fileToRemove = selectedFiles[indexToRemove];
+
+    try {
+      if (fileToRemove.id) {
+        await deleteFile(fileToRemove.id);
+      }
+
+      setSelectedFiles((prevFiles) =>
+        prevFiles.filter((file) => file !== fileToRemove),
+      );
+    } catch (error) {
+      console.error("File deletion failed:", error);
+      setErrors([`Could not remove ${fileToRemove.name}`]);
+    }
   }
 
-  // Remove all files
-  function handleClearAll() {
-    setSelectedFiles([]);
-    setErrors([]);
+  // Clear all files from IndexedDB and React state
+  async function handleClearAll() {
+    try {
+      await clearAllFiles();
+
+      setSelectedFiles([]);
+      setErrors([]);
+    } catch (error) {
+      console.error("Clear all failed:", error);
+      setErrors(["Could not clear saved files"]);
+    }
   }
 
   // Get file icon
@@ -116,12 +153,10 @@ function UploadArea() {
           isDragging ? "border-sage bg-sage-light/20" : "border-sage-light"
         }`}
       >
-        {/* Upload Icon */}
         <div className="w-16 h-16 bg-pink rounded-full flex items-center justify-center mx-auto mb-6">
           <CloudUpload size={32} className="text-sage-dark" />
         </div>
 
-        {/* Upload Text */}
         <h3 className="font-recia text-2xl md:text-3xl text-text-main">
           {isDragging ? "Release to upload files" : "Drop your files here"}
         </h3>
@@ -140,7 +175,6 @@ function UploadArea() {
           className="hidden"
         />
 
-        {/* Choose Files Button */}
         <label
           htmlFor="fileInput"
           className="inline-block mt-7 px-8 py-3 bg-sage text-white rounded-xl font-medium hover:bg-sage-dark transition-colors cursor-pointer"
@@ -148,13 +182,12 @@ function UploadArea() {
           Choose Files
         </label>
 
-        {/* Supported Formats */}
         <p className="text-sm text-text-main/50 mt-5">JPG, PNG, WEBP, PDF</p>
 
         <p className="text-xs text-text-main/40 mt-1">Maximum 10 MB per file</p>
       </div>
 
-      {/* Validation Errors */}
+      {/* Validation and Database Errors */}
       {errors.length > 0 && (
         <div className="mt-4 bg-red-50 border border-red-200 rounded-xl p-4">
           {errors.map((error, index) => (
@@ -168,7 +201,6 @@ function UploadArea() {
       {/* Selected Files */}
       {selectedFiles.length > 0 && (
         <div className="mt-6 space-y-4">
-          {/* File List Heading */}
           <div className="flex items-center justify-between gap-3">
             <h3 className="font-medium text-text-main">
               Selected Files ({selectedFiles.length})
@@ -194,10 +226,9 @@ function UploadArea() {
 
             return (
               <div
-                key={`${file.name}-${file.lastModified}-${index}`}
+                key={file.id || `${file.name}-${file.lastModified}-${index}`}
                 className="bg-white border border-sage-light rounded-xl p-4 flex items-center justify-between gap-4"
               >
-                {/* File Information */}
                 <div className="flex items-center gap-3 min-w-0">
                   <FileIcon size={24} className="text-sage-dark shrink-0" />
 
@@ -212,7 +243,6 @@ function UploadArea() {
                   </div>
                 </div>
 
-                {/* Remove Button */}
                 <button
                   type="button"
                   onClick={() => handleRemoveFile(index)}

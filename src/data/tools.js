@@ -1,0 +1,58 @@
+export const tools = [
+  {
+    id: 1,
+    name: "Merge PDF",
+    description: "Combine multiple PDF files into one document.",
+    category: "PDF",
+    icon: "files",
+  },
+  {
+    id: 2,
+    name: "Split PDF",
+    description: "Separate PDF pages into individual files.",
+    category: "PDF",
+    icon: "scissors",
+  },
+  {
+    id: 3,
+    name: "Compress PDF",
+    description: "Reduce the size of your PDF documents.",
+    category: "PDF",
+    icon: "file-down",
+  },
+  {
+    id: 4,
+    name: "PDF to Image",
+    description: "Convert PDF pages into image files.",
+    category: "PDF",
+    icon: "file-image",
+  },
+  {
+    id: 5,
+    name: "Compress Image",
+    description: "Reduce image size while maintaining quality.",
+    category: "Image",
+    icon: "image",
+  },
+  {
+    id: 6,
+    name: "Convert Image",
+    description: "Convert images between JPG, PNG and WEBP.",
+    category: "Image",
+    icon: "refresh-cw",
+  },
+  {
+    id: 7,
+    name: "Resize Image",
+    description: "Change image dimensions easily.",
+    category: "Image",
+    icon: "maximize",
+  },
+  {
+    id: 8,
+    name: "Image to PDF",
+    description: "Convert multiple images into a PDF.",
+    category: "Image",
+    icon: "file-image",
+  },
+];
