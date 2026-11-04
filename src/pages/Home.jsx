@@ -4,18 +4,18 @@ import UploadArea from "../components/UploadArea";
 import ToolGrid from "../components/ToolGrid";
 import { useEffect, useState } from "react";
 import { getAllFiles } from "../database/fileDatabase";
+import MergePDF from "../data/MergePdf";
 
 function Home() {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedTool, setSelectedTool] = useState(null);
 
   useEffect(() => {
     async function loadFiles() {
       try {
         const files = await getAllFiles();
-
         setSelectedFiles(files);
-
         console.log("Restored files:", files);
       } catch (error) {
         console.error("Failed to restore files:", error);
@@ -34,8 +34,13 @@ function Home() {
 
       {isLoading ? (
         <p className="text-center py-12 text-text-main/60">
-          Restoring your files
+          Restoring your files...
         </p>
+      ) : selectedTool === "merge-pdf" ? (
+        <MergePDF
+          selectedFiles={selectedFiles}
+          onBack={() => setSelectedTool(null)}
+        />
       ) : (
         <>
           <UploadArea
@@ -43,15 +48,12 @@ function Home() {
             setSelectedFiles={setSelectedFiles}
           />
 
-          <ToolGrid selectedFiles={selectedFiles} />
+          <ToolGrid
+            selectedFiles={selectedFiles}
+            onSelectTool={setSelectedTool}
+          />
         </>
       )}
-
-      <UploadArea
-        selectedFiles={selectedFiles}
-        setSelectedFiles={setSelectedFiles}
-      />
-      <ToolGrid selectedFiles={selectedFiles} />
     </main>
   );
 }

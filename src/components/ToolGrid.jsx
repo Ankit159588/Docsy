@@ -1,7 +1,7 @@
 import { tools } from "../data/tools";
 import ToolCard from "./ToolCard";
 
-function ToolGrid({ selectedFiles }) {
+function ToolGrid({ selectedFiles, onSelectTool }) {
   const hasFiles = selectedFiles.length > 0;
 
   const hasPDF = selectedFiles.some((file) => file.type === "application/pdf");
@@ -33,7 +33,7 @@ function ToolGrid({ selectedFiles }) {
       {/* Tool Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {filteredTools.map((tool) => (
-          <ToolCard key={tool.id} tool={tool} />
+          <ToolCard key={tool.id} tool={tool} onSelectTool={onSelectTool} />
         ))}
       </div>
     </section>

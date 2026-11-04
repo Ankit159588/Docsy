@@ -18,11 +18,17 @@ const iconMap = {
   maximize: Maximize,
 };
 
-function ToolCard({ tool }) {
+function ToolCard({ tool, onSelectTool }) {
   const Icon = iconMap[tool.icon];
 
   return (
-    <div className="bg-white border border-sage-light/60 rounded-2xl p-5 hover:shadow-md hover:-translate-y-1 transition-all duration-200 cursor-pointer">
+    <div
+      onClick={() => {
+        onSelectTool(tool.id);
+      }}
+
+      className="bg-white border border-sage-light/60 rounded-2xl p-5 hover:shadow-md hover:-translate-y-1 transition-all duration-200 cursor-pointer"
+    >
       <div className="w-12 h-12 bg-pink rounded-xl flex items-center justify-center mb-4">
         <Icon size={24} className="text-sage-dark" />
       </div>
